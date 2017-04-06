@@ -114,9 +114,9 @@ class CheckPostgresQuery < Sensu::Plugin::Check::CLI
             end
 
     calc = Dentaku::Calculator.new
-    if config[:critical] && calc.evaluate(config[:critical], value: value)
+    if config[:critical] && calc.evaluate('value >= critical', critical: config[:critical].to_f, value: value)
       critical "Results: #{res.values}"
-    elsif config[:warning] && calc.evaluate(config[:warning], value: value)
+    elsif config[:warning] && calc.evaluate('value >= warning', warning: config[:warning].to_f, value: value)
       warning "Results: #{res.values}"
     else
       ok 'Query OK'
