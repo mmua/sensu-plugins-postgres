@@ -69,6 +69,12 @@ class CheckPostgresQuery < Sensu::Plugin::Check::CLI
          long: '--query QUERY',
          required: true
 
+  option :detail_query,
+         description: 'Database details query to execute after fail',
+         short: '-i QUERY',
+         long: '--detail_query QUERY',
+         required: false
+
   option :check_tuples,
          description: 'Check against the number of tuples (rows) returned by the query',
          short: '-t',
@@ -115,8 +121,14 @@ class CheckPostgresQuery < Sensu::Plugin::Check::CLI
 
     calc = Dentaku::Calculator.new
     if config[:critical] && calc.evaluate('value >= critical', critical: config[:critical].to_f, value: value)
+      if config[:detail_query]
+          res = con.exec(config[:detail_query].to_s)
+      end
       critical "Results: #{res.values}"
     elsif config[:warning] && calc.evaluate('value >= warning', warning: config[:warning].to_f, value: value)
+      if config[:detail_query]
+          res = con.exec(config[:detail_query].to_s)
+      end
       warning "Results: #{res.values}"
     else
       ok 'Query OK'
